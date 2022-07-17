@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<div>
+    <table>
+        <div class="input-wrapper">
+            <button onclick="clearFilters()" style="height: 45px; margin: auto 0">Сбросить все фильтры</button>
+            <div class="date-picker-wrapper">
+                <span>Поиск по товарам</span>
+                <div>
+                    <input id="name" onchange="searchItem()" style="width: 100%" type="text">
+                </div>
+
+            </div>
+            <div class="date-picker-wrapper">
+                <span>Поиск по колличеству  товара</span>
+                <div>
+                    <input id="count" onchange="searchItem()" style="width: 100%" type="number">
+                </div>
+            </div>
+            <div class="date-picker-wrapper">
+                <span>Стоимость за единицу</span>
+                <div>
+                    <input type="number" style="width: 45%" id="priceStart" onchange="searchItem()">
+                    <input type="number" style="width: 45%" id="priceEnd" onchange="searchItem()">
+                </div>
+            </div>
+            <div class="date-picker-wrapper">
+                <span>Общая стоимость</span>
+                <div>
+                    <input type="number" style="width: 45%" id="totalStart" onchange="searchItem()">
+                    <input type="number" style="width: 45%" id="totalEnd" onchange="searchItem()">
+                </div>
+            </div>
+            <div class="date-picker-wrapper">
+                <span>Имя покупателя</span>
+                <div>
+                    <input id="customerName" onchange="searchItem()" style="width: 100%" type="text">
+                </div>
+            </div>
+            <div class="date-picker-wrapper">
+                <span>Вывести по дате в периоде</span>
+                <div>
+                    <input type="date" maxlength="10" style="width: 45%" onchange="searchItem()" id="dateStart">
+                    <input type="date" maxlength="10" style="width: 45%" onchange="searchItem()" id="dateEnd">
+                </div>
+
+            </div>
+        </div>
+        <div class="sort-wrapper">
+            <div class="sort-column">
+                <button onclick="sortBy('id','min')">По нумерованию от меньшего к большему</button>
+                <button onclick="sortBy('id','max')">По нумерованию от большего к меньшему</button>
+            </div>
+            <div class="sort-column">
+                <button onclick="sortBy('count','min')">По колличеству товара от меньшего к большему</button>
+                <button onclick="sortBy('count','max')">По колличеству товара от большего к меньшему</button>
+            </div>
+
+            <div class="sort-column">
+                <button onclick="sortBy('price','min')">По стоимости за единицу от меньшего к большему</button>
+                <button onclick="sortBy('price','max')">По стомости за единицу от большего к меньшему</button>
+            </div>
+            <div class="sort-column">
+                <button onclick="sortBy('Total','min')">По общей стоимости от меньшего к большему</button>
+                <button onclick="sortBy('Total','max')">По общей стомости от большего к меньшему</button>
+            </div>
+            <div class="sort-column">
+                <button onclick="sortBy('date','min')">По дате приобритения от меньшего к большему</button>
+                <button onclick="sortBy('date','max')">По дате приобритения от большего к меньшему</button>
+            </div>
+        </div>
+        <thead>
+        <tr>
+            <th scope="col">№</th>
+            <th scope="col">Наменование товара</th>
+            <th scope="col">Колличество товара</th>
+            <th scope="col">Стоимость за единицу</th>
+            <th scope="col">Общая стоимость</th>
+            <th scope="col">Имя покупателя</th>
+            <th scope="col">Дата приобритения</th>
+
+        </tr>
+        </thead>
+        <tbody id="table">
+
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
+
+<script>
+    const customersDirectory = ['Бондарева Александра Матвеевна', 'Громов Кирилл Денисович', 'Иванов Юрий Маркович', 'Ушакова Варвара Данииловна', 'Сорокин Тимофей Данилович', 'Волков Леонид Петрович', 'Уткина Камила Михайловна', 'Гусев Матвей Дмитриевич', 'Бирюков Тимур Кириллович', 'Мешков Николай Артёмович', 'Федорова Софья Артёмовна', 'Дмитриева София Андреевна', 'Павлов Матвей Алексеевич', 'Громов Даниил Игоревич', 'Самойлова Варвара Михайловна', 'Соколова Ирина Егоровна', 'Михеев Степан Максимович', 'Козырева Сафия Марковна', 'Кузнецова Милана Владиславовна', 'Трошин Николай Маркович', 'Журавлев Виктор Маркович', 'Мельникова Софья Кирилловна', 'Романов Эрик Артёмович', 'Филатова Алёна Владимировна', 'Ковалев Тимур Евгеньевич', 'Никифоров Никита Лукич', 'Попов Марк Маркович', 'Соколов Роман Фёдорович', 'Новикова Дарья Даниловна', 'Терентьева Амира Михайловна', 'Круглов Никита Демидович', 'Федорова Василиса Глебовна', 'Назаров Роман Николаевич', 'Громов Даниил Иванович', 'Фомина Мария Михайловна', 'Борисова Амелия Фёдоровна', 'Лебедев Матвей Александрович', 'Ильин Сергей Тимофеевич', 'Гришина Ева Михайловна', 'Филатова Екатерина Ивановна', 'Васильев Даниил Ярославович', 'Макаров Платон Андреевич', 'Власов Даниил Ильич', 'Федорова Валерия Кирилловна', 'Тимофеев Артём Платонович', 'Евдокимов Егор Елисеевич', 'Кузнецова Карина Максимовна', 'Федорова Ксения Филипповна', 'Антонов Михаил Михайлович', 'Буров Ян Даниилович', 'Макаров Александр Демидович', 'Осипова Вероника Александровна', 'Попов Роман Денисович', 'Афанасьева Елизавета Даниэльевна', 'Кудряшов Захар Всеволодович', 'Моисеев Егор Николаевич', 'Мельников Тимур Егорович', 'Краснова Арина Дмитриевна', 'Софронова Дарья Глебовна', 'Иванов Тимофей Дмитриевич', 'Горбунов Артём Арсентьевич', 'Григорьев Марк Дмитриевич', 'Никифоров Михаил Егорович', 'Петров Кирилл Александрович', 'Семенов Александр Алексеевич', 'Осипов Михаил Павлович', 'Соколов Кирилл Михайлович', 'Смирнов Ростислав Егорович', 'Афанасьева Нина Матвеевна', 'Лобанов Даниил Ильич', 'Любимов Савелий Владимирович', 'Тарасова Мария Александровна', 'Давыдов Максим Глебович', 'Макарова Алиса Марковна', 'Агеева София Артёмовна', 'Островский Пётр Викторович', 'Абрамов Давид Алексеевич', 'Моисеев Макар Мирославович', 'Егорова Василиса Михайловна', 'Кудрявцев Даниил Иванович', 'Петровская Елизавета Романовна', 'Андреева Евдокия Алексеевна', 'Власова Яна Степановна', 'Елисеев Алексей Русланович', 'Астафьева Мирослава Максимовна', 'Овчинникова Алёна Мироновна', 'Королев Артём Степанович', 'Алексеев Григорий Григорьевич', 'Орлова Ульяна Владиславовна', 'Дорохова Алиса Артёмовна', 'Исаева Виктория Михайловна', 'Маркова Дарья Ивановна', 'Емельянов Глеб Даниилович', 'Максимова Амира Артёмовна', 'Лебедева Ксения Арсентьевна', 'Селезнева Ева Данииловна', 'Родионов Алексей Егорович', 'Фролова Ева Дмитриевна', 'Селиванова Софья Андреевна', 'Акимова Елизавета Михайловна'];
+    const productDirectory = ['Ноутбук', 'Компьютер', 'Ручка', 'Бумага', 'Монитор', 'Компьютерная мышь', 'Стол', 'Компьютерный стул', 'Папка', 'Вентилятор', 'Процессор', 'Тумба', 'Тетрадь', 'Журнал'];
+    const dataOrders = generateRandomJson()
+
+    function generateRandomJson() {
+        let Json = []
+
+        function arrayRandElement(arr) {
+            var rand = Math.floor(Math.random() * arr.length);
+            return arr[rand];
+        }
+
+        function randomDate(date1, date2) {
+            function getRandomArbitrary(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            date1 = new Date(date1).getTime()
+            date2 = new Date(date2).getTime()
+            if (date1 > date2) {
+                return new Date(getRandomArbitrary(date2, date1))
+            } else {
+                return new Date(getRandomArbitrary(date1, date2))
+            }
+        }
+
+        function getRandomIntInclusive(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        for (let i = 0; i < 1000; i++) {
+            let count = getRandomIntInclusive(1, 100)
+            let price = getRandomIntInclusive(1, 100000)
+            Json.push({
+                "id": i + 1,
+                "name": arrayRandElement(productDirectory),
+                "customerName": arrayRandElement(customersDirectory),
+                'date': randomDate('01/01/2010', '12/31/2022'),
+                'count': count,
+                'Total': count * price,
+                'price': price
+            })
+        }
+        return Json
+    }
+
+    function renderTable(data) {
+
+        function numerize(value){
+            if (value==0) return '0'
+            if (!value) return ''
+            if(value<=999) return value
+            return value.toLocaleString().replace(',',' ')
+        }
+
+        const table = document.getElementById('table');
+        var html = '';
+        var cnt = 0;
+        for (var i in data) {
+            if (cnt == 0) {
+                html += '<tr>';
+            }
+            html += '<td>' + data[i]['id'] + '</td>' + '<td>' + data[i]['name'] + '</td>' + '<td>' + numerize(data[i]['count']) + '</td>' + '<td>' +  numerize(data[i]['price']) + '</td>' + '<td>' +  numerize(data[i]['Total']) + '</td>' + '<td>' + data[i]['customerName'] + '</td>' + '<td>' + new Date(data[i]['date']).toLocaleDateString() + '</td>';
+            cnt++;
+            html += '</tr>';
+        }
+        if (cnt != 0) {
+            html += '</tr>';
+        }
+
+        table.innerHTML = html
+    }
+
+    function searchItem() {
+        let dateToFilter = JSON.stringify(dataOrders)
+        dateToFilter = JSON.parse(dateToFilter)
+
+        if (document.getElementById('priceStart').value == false && document.getElementById('priceEnd').value == true) {
+            let valMin = dateToFilter.reduce(function (prev, curr) {
+                return prev.price < curr.price ? prev : curr;
+            });
+            document.getElementById('priceStart').value = valMin.price
+        } else if (document.getElementById('priceStart').value == true && document.getElementById('priceEnd').value == false) {
+            let valBig = dateToFilter.reduce(function (prev, curr) {
+                return prev.price > curr.price ? prev : curr;
+            });
+            document.getElementById('priceEnd').value = valBig.price
+        }
+
+        if (document.getElementById('totalStart').value == false && document.getElementById('totalEnd').value == true) {
+            let valMin = dateToFilter.reduce(function (prev, curr) {
+                return prev.Total < curr.Total ? prev : curr;
+            });
+            document.getElementById('totalStart').value = valMin.Total
+
+        } else if (document.getElementById('totalStart').value == true && document.getElementById('totalEnd').value == false) {
+
+            let valBig = dateToFilter.reduce(function (prev, curr) {
+                return prev.Total > curr.Total ? prev : curr;
+            });
+            document.getElementById('totalEnd').value = valBig.Total
+        }
+
+
+        if (document.getElementById('customerName').value) {
+            dateToFilter = dateToFilter.filter(item => item.customerName.includes(document.getElementById('customerName').value))
+        }
+        if (document.getElementById('name').value) {
+            dateToFilter = dateToFilter.filter(item => item.name.includes(document.getElementById('name').value))
+        }
+
+
+        if (document.getElementById('count').value) {
+            dateToFilter = dateToFilter.filter(item => item.count == document.getElementById('count').value)
+        }
+
+
+        if (document.getElementById('priceStart').value && document.getElementById('priceEnd').value) {
+
+            dateToFilter = dateToFilter.filter(item => (item.price >= document.getElementById('priceStart').value && item.price <= document.getElementById('priceEnd').value))
+        }
+        if (document.getElementById('totalStart').value && document.getElementById('totalEnd').value) {
+
+            dateToFilter = dateToFilter.filter(item => (item.Total >= document.getElementById('totalStart').value && item.Total <= document.getElementById('totalEnd').value))
+
+        }
+
+
+        if (document.getElementById('dateStart').value && document.getElementById('dateEnd').value) {
+
+            dateToFilter = dateToFilter.filter(item => (new Date(item.date) >= new Date(document.getElementById('dateStart').value) && new Date(item.date) <= new Date(document.getElementById('dateEnd').value)))
+        }
+
+
+        renderTable(dateToFilter)
+    }
+
+    function clearFilters() {
+        document.getElementById('name').value = ''
+        document.getElementById('customerName').value = ''
+        document.getElementById('count').value = ''
+        document.getElementById('totalStart').value = ''
+        document.getElementById('priceStart').value = ''
+        document.getElementById('totalEnd').value = ''
+        document.getElementById('priceEnd').value = ''
+        document.getElementById('dateStart').value = ''
+        document.getElementById('dateEnd').value = ''
+        renderTable(dataOrders)
+    }
+
+
+    function sortBy(item, val) {
+
+        let dateToFilter = JSON.stringify(dataOrders)
+        dateToFilter = JSON.parse(dateToFilter)
+
+        function getComparator(n, val) {
+            return function (a, b) {
+
+                if (n == 'date') {
+                    if (val == 'min') {
+                        return new Date(a[n]) - new Date(b[n])
+                    } else if (val == 'max') {
+                        return new Date(b[n]) - new Date(a[n])
+                    }
+                } else {
+                    if (val == 'min') {
+                        return a[n] - b[n]
+                    } else if (val == 'max') {
+                        return b[n] - a[n]
+                    }
+                }
+
+
+            }
+        }
+
+
+        dateToFilter.sort(getComparator(item, val))
+
+
+        renderTable(dateToFilter)
+    }
+
+
+    renderTable(dataOrders)
+</script>
+<style>
+    .sort-wrapper {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .sort-column {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sort-column button {
+        margin-bottom: 1rem;
+    }
+
+    .date-picker-wrapper {
+        height: 45px;
+        margin: auto 0;
+        display: flex;
+        width: 250px;
+        flex-direction: column;
+    }
+
+    .date-picker-wrapper div {
+        margin-top: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .date-picker-wrapper input {
+        width: 45%;
+    }
+
+    .date-picker-wrapper select {
+        width: 100%;
+    }
+
+    .input-wrapper {
+        flex-wrap: wrap;
+        justify-content: space-between;
+        display: flex;
+        height: 120px;
+        width: 100%;
+    }
+
+    table {
+        margin-top: 1rem;
+        width: 100%;
+        border: none;
+        margin-bottom: 20px;
+    }
+
+    table thead th {
+        font-weight: bold;
+        text-align: left;
+        border: none;
+        padding: 10px 15px;
+        background: #d8d8d8;
+        font-size: 14px;
+        border-left: 1px solid #ddd;
+        border-right: 1px solid #ddd;
+    }
+
+    table tbody td {
+        text-align: left;
+        border-left: 1px solid #ddd;
+        border-right: 1px solid #ddd;
+        padding: 10px 15px;
+        font-size: 14px;
+        vertical-align: top;
+    }
+
+    table thead tr th:first-child, .table tbody tr td:first-child {
+        border-left: none;
+    }
+
+    table thead tr th:last-child, .table tbody tr td:last-child {
+        border-right: none;
+    }
+
+    table tbody tr:nth-child(even) {
+        background: #f3f3f3;
+    }
+</style>
